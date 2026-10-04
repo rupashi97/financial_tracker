@@ -1,0 +1,9 @@
+#!/bin/sh
+# Safety net: refuse to commit personal financial data, even if .gitignore is changed by mistake.
+bad=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^data/|\.(pdf|csv|tsv|xlsx|xlsm|xls|ofx|qfx|qbo|sqlite|sqlite3|db|png|jpe?g|heic|webp)$|(^|/)household\.json$|(^|/)income_owners\.json$|(^|/)accounts\.json$|(^|/)merchant_buckets\.json$')
+if [ -n "$bad" ]; then
+  echo "Commit blocked: these look like personal financial data and must not be committed:" >&2
+  echo "$bad" | sed 's/^/  - /' >&2
+  echo "Unstage them with: git restore --staged <file>   (or, before the first commit: git rm --cached <file>)" >&2
+  exit 1
+fi

@@ -1,0 +1,8 @@
+# Personal financial data - never commit
+data/
+
+# Local environment and caches
+.venv/
+__pycache__/
+*.pyc
+.DS_Store

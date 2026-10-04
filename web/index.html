@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>try { var t = localStorage.getItem("ft.theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Financial Tracker</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 36 36%22 width=%2236%22 height=%2236%22 aria-hidden=%22true%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22#fb923c%22/%3E%3Cstop offset=%221%22 stop-color=%22#ea580c%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2236%22 height=%2236%22 rx=%2210%22 fill=%22url(#g)%22/%3E%3Crect x=%228%22 y=%2221%22 width=%225%22 height=%228%22 rx=%221.5%22 fill=%22#fff%22 fill-opacity=%22.7%22/%3E%3Crect x=%2215.5%22 y=%2216%22 width=%225%22 height=%2213%22 rx=%221.5%22 fill=%22#fff%22 fill-opacity=%22.85%22/%3E%3Crect x=%2223%22 y=%2211%22 width=%225%22 height=%2218%22 rx=%221.5%22 fill=%22#fff%22/%3E%3Cpath d=%22M8 15.5 L28 6.5 M23.5 6 L28 6.5 L27 11%22 stroke=%22#fff%22 stroke-width=%222.2%22 fill=%22none%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --surface-2: #f1f0ec; --border: rgba(11,11,11,0.10);
+  --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781; --grid: #e1e0d9;
+  --accent: #2a78d6; --accent-ink: #fff; --bar: #2a78d6; --bar-2: #eb6834;
+  --good: #0ca30c; --good-ink: #006300; --warning: #fab219; --critical: #d03b3b;
+  --wash-info: #e8f1fc; --wash-good: #e6f5e6; --wash-warning: #fff4dc;
+  --radius: 12px;
+  --n1: #e8f1fc; --n1a: #2a78d6; --n2: #fdeee6; --n2a: #eb6834; --n3: #e3f5ee; --n3a: #1baf7a;
+  --n4: #fdf3dc; --n4a: #c98500; --n5: #fbeaf1; --n5a: #d55181; --n6: #ecebf8; --n6a: #6a5bd0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --surface-2: #242422; --border: rgba(255,255,255,0.10);
+    --ink: #fff; --ink-2: #c3c2b7; --muted: #898781; --grid: #2c2c2a;
+    --accent: #3987e5; --bar: #3987e5; --bar-2: #d95926; --good-ink: #0ca30c;
+    --wash-info: #172a44; --wash-good: #13301a; --wash-warning: #3a2e10;
+    --n1: #172a44; --n1a: #3987e5; --n2: #3a2216; --n2a: #d95926; --n3: #12332a; --n3a: #199e70;
+    --n4: #3a2e10; --n4a: #c98500; --n5: #3a1a28; --n5a: #d55181; --n6: #23204a; --n6a: #9085e9;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --surface-2: #242422; --border: rgba(255,255,255,0.10);
+  --ink: #fff; --ink-2: #c3c2b7; --muted: #898781; --grid: #2c2c2a;
+  --accent: #3987e5; --bar: #3987e5; --bar-2: #d95926; --good-ink: #0ca30c;
+  --wash-info: #172a44; --wash-good: #13301a; --wash-warning: #3a2e10;
+  --n1: #172a44; --n1a: #3987e5; --n2: #3a2216; --n2a: #d95926; --n3: #12332a; --n3a: #199e70;
+  --n4: #3a2e10; --n4a: #c98500; --n5: #3a1a28; --n5a: #d55181; --n6: #23204a; --n6a: #9085e9;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--page); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+button, select { font: inherit; color: inherit; }
+header { border-bottom: 1px solid var(--border); background: var(--page); position: sticky; top: 0; z-index: 5; }
+.bar { max-width: 960px; margin: 0 auto; padding: 16px 16px 2px; display: flex; align-items: center; gap: 10px; }
+.brand { font-weight: 750; font-size: 32px; letter-spacing: -0.015em; display: flex; gap: 12px; align-items: center; line-height: 1.15; }
+.brand .logo { width: 42px; height: 42px; flex: none; display: block; filter: drop-shadow(0 2px 6px rgba(234, 88, 12, .35)); }
+.brand .logo svg { display: block; }
+.spacer { flex: 1; }
+.theme-btn { border: 1px solid var(--border); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 12px; font-size: 13px; cursor: pointer; white-space: nowrap; display: inline-flex; gap: 6px; align-items: center; }
+.theme-btn:hover { background: var(--surface-2); }
+.lock { white-space: nowrap; font-size: 12px; color: var(--ink-2); background: var(--surface-2); border-radius: 999px; padding: 2px 10px; }
+nav { max-width: 960px; margin: 0 auto; padding: 6px 16px 0; display: flex; gap: 4px; }
+nav a { text-decoration: none; color: var(--ink-2); padding: 8px 14px; border-bottom: 2px solid transparent; }
+nav a.on { color: var(--ink); border-color: var(--accent); font-weight: 600; }
+main { max-width: 960px; margin: 0 auto; padding: 24px 16px 80px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+h1 { font-size: 24px; margin: 0 0 4px; }
+h2 { font-size: 19px; margin: 36px 0 12px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+h2 .num { margin-left: auto; font-size: 17px; font-variant-numeric: tabular-nums; }
+h3 { font-size: 15px; margin: 22px 0 8px; color: var(--ink-2); font-weight: 600; }
+.sub { color: var(--ink-2); font-size: 13px; }
+.pickers { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+select { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; }
+.btn { border: 1px solid var(--border); background: var(--surface); border-radius: 10px; padding: 10px 18px; cursor: pointer; text-decoration: none; display: inline-block; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn:disabled { opacity: .5; cursor: default; }
+.drop { margin-top: 18px; border: 2px dashed var(--grid); border-radius: var(--radius); padding: 40px 16px; text-align: center; cursor: pointer; transition: background .15s, border-color .15s; }
+.drop:hover, .drop.over { border-color: var(--accent); background: var(--surface-2); }
+.drop b { display: block; font-size: 17px; margin-bottom: 4px; }
+.picked { margin: 14px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+.picked li { background: var(--surface-2); border-radius: 999px; padding: 3px 10px; font-size: 13px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.actions { margin-top: 18px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.steps { display: flex; gap: 0; margin-top: 26px; }
+.step { flex: 1; text-align: center; position: relative; color: var(--muted); font-size: 14px; }
+.step .dot { width: 30px; height: 30px; border-radius: 50%; margin: 0 auto 8px; display: grid; place-items: center; background: var(--surface-2); border: 2px solid var(--grid); font-weight: 700; font-size: 13px; position: relative; z-index: 1; }
+.step::before { content: ""; position: absolute; top: 15px; left: -50%; width: 100%; height: 2px; background: var(--grid); }
+.step:first-child::before { display: none; }
+.step.done, .step.active { color: var(--ink); }
+.step.done .dot { background: var(--good); border-color: var(--good); color: #fff; }
+.step.done::before, .step.active::before { background: var(--good); }
+.step.active .dot { border-color: var(--accent); color: var(--accent); }
+.step.active .dot::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid transparent; border-top-color: var(--accent); animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .step.active .dot::after { animation: none; border-color: var(--accent); } }
+.ready { margin-top: 22px; text-align: center; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.seg a { padding: 7px 14px; text-decoration: none; color: var(--ink-2); font-size: 14px; }
+.seg a + a { border-left: 1px solid var(--border); }
+.seg a.on { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.ask { background: var(--wash-info); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; font-size: 14px; }
+.ask .q { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 4px 0; }
+.ask .q button { border: 1px solid var(--border); background: var(--surface); border-radius: 8px; padding: 4px 12px; cursor: pointer; }
+.note.good { background: var(--wash-good); }
+.note.good b { color: var(--good-ink); }
+.note { margin-top: 14px; font-size: 13px; color: var(--ink-2); background: var(--wash-warning); border-radius: 8px; padding: 8px 12px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 16px; }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+.kpi .l { font-size: 12px; color: var(--ink-2); }
+.kpi .v { font-size: 22px; font-weight: 650; margin-top: 2px; }
+.kpi .s { font-size: 12px; color: var(--ink-2); }
+.rows { display: flex; flex-direction: column; }
+.row { display: grid; font: inherit; color: inherit; grid-template-columns: minmax(0, 1.4fr) minmax(0, 2fr) 96px 64px; gap: 12px; align-items: center; padding: 10px 4px; border-bottom: 1px solid var(--border); }
+.row:last-child { border-bottom: 0; }
+.item { border-bottom: 1px solid var(--border); }
+.item:last-of-type { border-bottom: 0; }
+.item > .row { width: 100%; border: 0; background: none; text-align: left; cursor: pointer; border-radius: 8px; }
+.item > .row:hover { background: var(--surface-2); }
+.item > .row:disabled { cursor: default; background: none; }
+.row .name::before { content: "▸"; display: inline-block; width: 16px; color: var(--muted); transition: transform .15s; }
+.item.open .row .name::before { transform: rotate(90deg); }
+.row:disabled .name::before { visibility: hidden; }
+.details { display: none; padding: 0 4px 12px 20px; }
+.item.open .details { display: block; }
+.details table { font-size: 13px; }
+.details td.d { color: var(--ink-2); white-space: nowrap; width: 64px; }
+.details td .acct { color: var(--ink-2); font-size: 12px; }
+.row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .name small { display: block; color: var(--ink-2); font-size: 12px; }
+.row .amt, .row .pct { text-align: right; font-variant-numeric: tabular-nums; }
+.row .pct { color: var(--ink-2); font-size: 13px; }
+.track { height: 12px; background: var(--surface-2); border-radius: 0 4px 4px 0; overflow: hidden; }
+.fill { height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; }
+.row.zero { color: var(--muted); }
+.tint { --c: var(--n1a); border: 1.5px solid var(--c) !important; background: color-mix(in srgb, var(--c) 9%, var(--surface)) !important; }
+.tint .l { font-weight: 600; }
+.c-in { --c: var(--good); } .c-spent { --c: var(--n2a); } .c-rate { --c: var(--n6a); } .c-left { --c: var(--n1a); }
+.c-liquid { --c: var(--n3a); } .c-invested { --c: var(--n4a); } .c-cards { --c: var(--n5a); }
+.tree { margin-top: 22px; }
+.tree .root { max-width: 300px; margin: 0 auto; text-align: center; border-width: 2px !important; }
+.tree .stem { width: 2px; height: 18px; background: var(--grid); margin: 0 auto; }
+.branches { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding-top: 18px; }
+.branches::before { content: ""; position: absolute; top: 0; left: calc(100% / 6); right: calc(100% / 6); height: 2px; background: var(--grid); }
+.branch { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+.branch::before { content: ""; position: absolute; top: -19px; left: 50%; width: 2px; height: 18px; background: var(--grid); }
+.branch .l { font-size: 13px; color: var(--ink-2); font-weight: 600; }
+.branch .v { font-size: 24px; font-weight: 650; margin: 2px 0 8px; }
+.branch .v.neg { color: var(--critical); }
+.branch .part { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; padding: 3px 0; border-top: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+.branch .part span:first-child { color: var(--ink-2); }
+.branch .why { font-size: 12px; color: var(--muted); margin-top: 8px; }
+.tree .check { text-align: center; font-size: 13px; color: var(--ink-2); margin-top: 12px; }
+details.sec { border-bottom: 1px solid var(--border); }
+details.sec > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 10px; padding: 16px 4px; font-size: 19px; font-weight: 700; border-radius: 8px; }
+details.sec > summary::-webkit-details-marker { display: none; }
+details.sec > summary::before { content: "▸"; color: var(--muted); font-size: 15px; transition: transform .15s; display: inline-block; width: 14px; }
+details.sec[open] > summary::before { transform: rotate(90deg); }
+details.sec > summary:hover { background: var(--surface-2); }
+details.sec > summary .num { margin-left: auto; font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; }
+details.sec > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sec-body { padding: 0 0 20px; }
+.sec-body > h3:first-child { margin-top: 4px; }
+h2.breakdown { font-size: 24px; margin-top: 48px; padding-top: 24px; border-top: 2px solid var(--border); }
+@media (max-width: 700px) {
+  .branches { grid-template-columns: 1fr; padding-top: 0; }
+  .branches::before, .branch::before { display: none; }
+}
+.flow-row { grid-template-columns: minmax(0, 1fr) 0 120px 0 !important; }
+.flow-row .name small { white-space: normal; }
+.total-line { display: flex; justify-content: space-between; padding: 12px 4px 0; font-weight: 600; border-top: 2px solid var(--border); margin-top: 4px; }
+.notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.note-card { border-radius: var(--radius); padding: 14px 16px 16px; border-top: 4px solid var(--a); background: var(--bg); display: flex; flex-direction: column; gap: 6px; }
+.note-card .kind { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-2); }
+.note-card .t { font-weight: 700; font-size: 16px; line-height: 1.3; }
+.note-card .d { font-size: 14px; color: var(--ink-2); line-height: 1.45; flex: 1; }
+.note-card .imp { align-self: flex-start; font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--a); font-variant-numeric: tabular-nums; }
+@media (max-width: 900px) { .notes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .notes { grid-template-columns: 1fr; } }
+.suggest { white-space: normal; }
+.suggest ul { margin: 0; padding-left: 20px; }
+.suggest li { margin: 6px 0; }
+.suggest .lead { margin: 0 0 8px; }
+.empty { text-align: center; padding: 48px 16px; color: var(--ink-2); }
+.empty b { display: block; color: var(--ink); font-size: 17px; margin-bottom: 6px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-weight: 500; color: var(--ink-2); font-size: 12px; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+td { padding: 8px; border-bottom: 1px solid var(--border); }
+th.n, td.n { text-align: right; font-variant-numeric: tabular-nums; }
+tr:last-child td { border-bottom: 0; }
+.tbl { overflow-x: auto; }
+.tag { font-size: 11px; padding: 1px 7px; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); margin-left: 6px; white-space: nowrap; }
+.tag.up { background: var(--wash-warning); color: var(--ink); }
+.muted-note { font-size: 12px; color: var(--muted); margin-top: 28px; }
+@media (max-width: 600px) {
+  .lock { display: none; }
+  .theme-btn span { display: none; }
+  .brand { font-size: 22px; gap: 10px; }
+  .brand .logo, .brand .logo svg { width: 32px; height: 32px; }
+  .row { grid-template-columns: minmax(0, 1fr) 84px 52px; }
+  .row .track { display: none; }
+  .step { font-size: 12px; }
+  .kpi .v { font-size: 19px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand"><span class="logo"><svg viewBox="0 0 36 36" width="42" height="42" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fb923c"/><stop offset="1" stop-color="#ea580c"/></linearGradient></defs><rect width="36" height="36" rx="10" fill="url(#lg)"/><rect x="8" y="21" width="5" height="8" rx="1.5" fill="#fff" fill-opacity=".7"/><rect x="15.5" y="16" width="5" height="13" rx="1.5" fill="#fff" fill-opacity=".85"/><rect x="23" y="11" width="5" height="18" rx="1.5" fill="#fff"/><path d="M8 15.5 L28 6.5 M23.5 6 L28 6.5 L27 11" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span id="app-title">Financial Tracker</span></div>
+    <div class="spacer"></div>
+    <span class="lock" title="Runs only on this Mac">🔒 Private</span>
+    <button class="theme-btn" id="theme-btn" type="button"></button>
+  </div>
+  <nav><a href="#home" id="nav-home">Home</a><a href="#report" id="nav-report">Report</a></nav>
+</header>
+<main id="view"></main>
+<input type="file" id="picker" multiple hidden accept=".pdf,.csv,.tsv,.txt,.xlsx,.xlsm,.ofx,.qfx,.qbo,.png,.jpg,.jpeg,.heic,.webp">
+
+<script>
+"use strict";
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+const usd0 = new Intl.NumberFormat("en-US", {style: "currency", currency: "USD", maximumFractionDigits: 0});
+const usd2 = new Intl.NumberFormat("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2});
+const money = (v, cents) => v == null ? "—" : (cents ? usd2 : usd0).format(v);
+const pct = v => v == null ? "—" : `${v.toFixed(v < 10 ? 1 : 0)}%`;
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const monthName = m => { const [y, mo] = m.split("-").map(Number); return `${MONTHS[mo - 1]} ${y}`; };
+const fmtDate = d => new Date(d + "T00:00:00").toLocaleDateString("en-US", {month: "short", day: "numeric"});
+
+// Selectable range: the last 5 years (60 months), newest first.
+const NOW = new Date();
+const RANGE = [];
+for (let i = 0; i < 60; i++) { const d = new Date(NOW.getFullYear(), NOW.getMonth() - i, 1); RANGE.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`); }
+const DEFAULT_MONTH = RANGE[1];  // last month
+
+let INFO = {with_data: [], uploaded: [], claude: true, members: []};
+let picked = [];
+let pollTimer = null;
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+
+// ---------- month + year pickers ----------
+function pickers(month, onChange, markData) {
+  const [y, m] = month.split("-");
+  const years = [...new Set(RANGE.map(x => x.slice(0, 4)))];
+  const avail = RANGE.filter(x => x.startsWith(y)).map(x => x.slice(5));
+  const hasData = new Set(INFO.with_data), full = new Set(INFO.uploaded || []);
+  const html = `<div class="pickers">
+    <select id="pk-month" aria-label="Month">${MONTHS.map((n, i) => { const mm = String(i + 1).padStart(2, "0");
+      return avail.includes(mm) ? `<option value="${mm}" ${mm === m ? "selected" : ""}>${n}${markData && hasData.has(`${y}-${mm}`) ? (full.has(`${y}-${mm}`) ? " ●" : " ◐") : ""}</option>` : ""; }).join("")}</select>
+    <select id="pk-year" aria-label="Year">${years.map(yy => `<option ${yy === y ? "selected" : ""}>${yy}</option>`).join("")}</select>
+    ${markData ? `<span class="sub">● report · ◐ leftovers only</span>` : ""}</div>`;
+  setTimeout(() => {
+    const go = () => {
+      let yy = $("#pk-year").value, mm = $("#pk-month").value;
+      if (!RANGE.includes(`${yy}-${mm}`)) mm = RANGE.filter(x => x.startsWith(yy)).map(x => x.slice(5)).sort().slice(-1)[0];
+      onChange(`${yy}-${mm}`);
+    };
+    $("#pk-month").onchange = go; $("#pk-year").onchange = go;
+  });
+  return html;
+}
+
+// ---------- routing ----------
+function route() {
+  const [tab, month, view] = (location.hash.slice(1) || "home").split("/");
+  const m = RANGE.includes(month) ? month : null;
+  $("#nav-home").classList.toggle("on", tab !== "report");
+  $("#nav-report").classList.toggle("on", tab === "report");
+  $("#nav-home").href = `#home/${m || homeMonth()}`;
+  $("#nav-report").href = `#report/${m || reportMonth()}`;
+  if (tab === "report") renderReport(m || reportMonth(), view || reportView()); else renderHome(m || homeMonth());
+}
+function homeMonth() { try { return sessionStorage.getItem("ft.home") || DEFAULT_MONTH; } catch (e) { return DEFAULT_MONTH; } }
+function reportMonth() { try { return sessionStorage.getItem("ft.report") || (INFO.uploaded || [])[0] || INFO.with_data[0] || DEFAULT_MONTH; } catch (e) { return DEFAULT_MONTH; } }
+function reportView() { try { return sessionStorage.getItem("ft.view") || "household"; } catch (e) { return "household"; } }
+function remember(key, m) { try { sessionStorage.setItem(key, m); } catch (e) {} }
+
+// ---------- Home ----------
+const STAGES = [["processing", "Processing"], ["creating_report", "Creating report"], ["ready", "Report ready"]];
+function renderHome(month) {
+  remember("ft.home", month);
+  clearInterval(pollTimer);
+  $("#view").innerHTML = `
+    <h1>Upload statements</h1>
+    <p class="sub">Pick the month, then add every statement for it at once: checking, savings, investments, credit cards. PDF, CSV, Excel, OFX or screenshots.</p>
+    <div class="card">
+      ${pickers(month, m => { location.hash = `home/${m}`; })}
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose statement files"><b>Drop all statements here</b><span class="sub">or click to choose files</span></div>
+      <ul class="picked" id="picked"></ul>
+      <div class="actions"><button class="btn primary" id="go" disabled>Create report for ${monthName(month)}</button><span class="sub" id="go-note"></span></div>
+      <div id="progress"></div>
+      ${INFO.claude ? "" : `<div class="note">Claude isn't connected, so PDFs and screenshots may be skipped and suggestions will be basic. CSV/Excel exports work fully. See the README to connect.</div>`}
+    </div>`;
+  const drop = $("#drop");
+  drop.onclick = () => { $("#picker").value = ""; $("#picker").click(); };
+  drop.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); drop.click(); } };
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
+  drop.ondragleave = () => drop.classList.remove("over");
+  drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over"); addFiles(e.dataTransfer.files); };
+  $("#picker").onchange = e => addFiles(e.target.files);
+  $("#go").onclick = () => start(month);
+  picked = [];
+  showPicked();
+  // If a job for this month is already running (e.g. page reloaded), show its progress.
+  api(`/api/status?month=${month}`).then(s => { if (s.stage !== "idle") { showProgress(s); if (s.stage !== "ready" && s.stage !== "error") poll(month); } }).catch(() => {});
+}
+function addFiles(list) {
+  for (const f of list) if (!picked.some(p => p.name === f.name && p.size === f.size)) picked.push(f);
+  showPicked();
+}
+function showPicked() {
+  $("#picked").innerHTML = picked.map(f => `<li title="${esc(f.name)}">${esc(f.name)}</li>`).join("");
+  $("#go").disabled = !picked.length;
+  $("#go-note").textContent = picked.length ? `${picked.length} file${picked.length > 1 ? "s" : ""}` : "";
+}
+async function start(month) {
+  $("#go").disabled = true;
+  showProgress({stage: "processing"});
+  try {
+    for (const f of picked) {
+      await api(`/api/upload?month=${month}&name=${encodeURIComponent(f.name)}`, {method: "POST", body: f});
+    }
+    picked = []; showPicked(); $("#go").disabled = true;
+    await api(`/api/process?month=${month}`, {method: "POST"});
+    poll(month);
+  } catch (e) { showProgress({stage: "error", message: e.message}); $("#go").disabled = false; }
+}
+function poll(month) {
+  clearInterval(pollTimer);
+  pollTimer = setInterval(async () => {
+    try {
+      const s = await api(`/api/status?month=${month}`);
+      showProgress(s);
+      if (s.stage === "ready" || s.stage === "error") {
+        clearInterval(pollTimer);
+        INFO = await api("/api/months");
+      }
+    } catch (e) {}
+  }, 1500);
+}
+function showProgress(s) {
+  const el = $("#progress");
+  if (!el) return;
+  if (s.stage === "error") {
+    el.innerHTML = `<div class="note" role="alert">Something went wrong while creating the report. Please try again.</div>`;
+    return;
+  }
+  const idx = STAGES.findIndex(x => x[0] === s.stage);
+  el.innerHTML = `<div class="steps" role="status" aria-live="polite">${STAGES.map(([k, label], i) =>
+    `<div class="step ${i < idx || s.stage === "ready" ? "done" : i === idx ? "active" : ""}"><div class="dot">${i < idx || s.stage === "ready" ? "✓" : i + 1}</div>${label}</div>`).join("")}</div>
+    ${s.stage === "ready" ? `<div class="ready">${s.has_data === false ? `<p class="sub">No transactions were found in these files.</p>` : ""}<a class="btn primary" href="#report/${s.month}">View report →</a></div>` : ""}`;
+}
+
+// ---------- Report ----------
+async function renderReport(month, view) {
+  const members = INFO.members || [];
+  if (view !== "household" && !members.some(x => x.id === view)) view = "household";
+  remember("ft.report", month); remember("ft.view", view);
+  clearInterval(pollTimer);
+  const toggle = members.length ? `<div class="seg" role="tablist" aria-label="Whose view">${[{id: "household", name: "Household"}, ...members].map(x =>
+    `<a href="#report/${month}/${x.id}" class="${x.id === view ? "on" : ""}" role="tab" aria-selected="${x.id === view}">${esc(x.name)}</a>`).join("")}</div>` : "";
+  $("#view").innerHTML = `<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between"><h1>Report</h1>${pickers(month, m => { location.hash = `report/${m}/${view}`; }, true)}</div>
+    ${toggle ? `<div style="margin-top:12px">${toggle}</div>` : ""}<div id="rep"><p class="sub">Loading…</p></div>`;
+  let r;
+  try { r = await api(`/api/report?month=${month}&view=${view}`); } catch (e) { $("#rep").innerHTML = `<div class="card empty">Couldn't load this report.</div>`; return; }
+  if (!r.has_data) {
+    $("#rep").innerHTML = `<div class="card empty" style="margin-top:16px"><b>No data uploaded for ${monthName(month)}</b>Upload that month's statements on the Home tab to see a report.<div style="margin-top:16px"><a class="btn" href="#home/${month}">Go to Home</a></div></div>`;
+    return;
+  }
+  const T = r.totals, inc = T.income;
+  const sp = r.spending, sv = r.savings, iv = r.investments;
+  const who = view === "household" ? null : (members.find(x => x.id === view) || {}).name;
+  let h = `<h2 style="margin-top:20px">${monthName(month)}${who ? ` · ${esc(who)}` : ""}</h2>${askHtml(r.needs_input, members)}${leftoverNote(r, month)}${r.uploaded && view === "household" ? completeness(r, month) : ""}
+  ${r.flow.view === "person" ? personFlowHtml(r.flow, sp, who) : flowHtml(r.flow, sp)}`;
+
+  // Breakdown
+  h += `<h2 class="breakdown">Breakdown</h2>`;
+  // Income
+  h += secOpen("income", "Income", money(inc, true)) + `<div class="card rows">`;
+  h += r.income.sources.length ? r.income.sources.map(s => row(s.nickname, (s.who ? s.who + " · " : "") + s.accounts.join(", "), s.total, inc ? s.total / inc * 100 : null, s.transactions, r.income.sources[0].total)).join("")
+    : `<p class="sub">No incoming money found this month.</p>`;
+  h += `</div><p class="sub">Click a row to see its transactions.</p>`;
+
+  h += secClose;
+  // Spending
+  const maxB = Math.max(...sp.buckets.map(b => b.total), 1);
+  h += secOpen("spending", "Spending", money(sp.total, true)) + `
+    <h3>Where it went <span class="sub" style="font-weight:400">· % of money in</span></h3><div class="card rows">`;
+  h += sp.buckets.map(b => row(b.name, b.estimate ? "Estimate from card payments. Upload these cards' statements for the real breakdown" : `${b.count} transaction${b.count === 1 ? "" : "s"}`, b.total, b.pct_of_income, b.transactions, maxB, true)).join("");
+  h += `<div class="total-line"><span>Total spending</span><span>${money(sp.total, true)} · ${pct(sp.pct_of_income)}</span></div></div>`;
+  if (sp.shared) h += `<p class="sub">Plus ${money(sp.shared)} of shared spending paid straight from the joint account (rent, bills…), shown in the Household view.</p>`;
+
+  h += `<h3>Subscriptions · ${money(r.subscriptions.total, true)}</h3><div class="card tbl">`;
+  h += r.subscriptions.items.length ? `<table><thead><tr><th>Service</th><th>How often</th><th class="n">Paid this month</th></tr></thead><tbody>
+    ${r.subscriptions.items.map(s => `<tr><td>${esc(s.name)}${s.change ? `<span class="tag ${s.change > 0 ? "up" : ""}">${s.change > 0 ? "▲ up" : "▼ down"} ${money(Math.abs(s.change), true)}</span>` : ""}</td><td>${esc(s.cadence)}</td><td class="n">${money(s.amount, true)}</td></tr>`).join("")}
+    </tbody></table>` : `<p class="sub" style="margin:0">No subscriptions found this month.</p>`;
+  h += `</div>`;
+
+  if (view === "household") h += `<h3>Top 6 suggestions</h3>${suggestions(r.suggestions)}`;
+
+  h += secClose;
+  // Liquid savings: savings (HYSA) + checking cash
+  h += secOpen("liquid", "Liquid savings", `${signed(sv.liquid)} this month`);
+  if (sv.accounts.length || (sv.checking || []).length) {
+    h += `<div class="kpis" style="margin-top:0">
+      <div class="kpi"><div class="l">Savings (HYSA) grew</div><div class="v">${signed(sv.saved)}</div></div>
+      <div class="kpi"><div class="l">Checking changed</div><div class="v">${signed(sv.checking_change)}</div></div>
+      <div class="kpi"><div class="l">Interest earned</div><div class="v">${money(sv.interest, true)}</div></div>
+      ${sv.end_balance != null ? `<div class="kpi"><div class="l">Savings balance</div><div class="v">${money(sv.end_balance)}</div></div>` : ""}
+    </div><div class="card tbl" style="margin-top:12px"><table><thead><tr><th>Account</th><th class="n">Start</th><th class="n">End</th><th class="n">Change this month</th><th class="n">Interest</th><th class="n">Est. APY</th></tr></thead><tbody>
+      ${sv.accounts.map(a => `<tr><td>${esc(a.name)}</td><td class="n">${money(a.start_balance)}</td><td class="n">${money(a.end_balance)}</td><td class="n">${signed(a.saved || 0)}</td><td class="n">${money(a.interest, true)}</td><td class="n">${a.apy_estimate != null ? a.apy_estimate.toFixed(2) + "%" : "—"}</td></tr>`).join("")}
+      ${(sv.checking || []).map(a => `<tr><td>${esc(a.name)}</td><td class="n">—</td><td class="n">—</td><td class="n">${signed(a.change)}</td><td class="n">—</td><td class="n">—</td></tr>`).join("")}
+    </tbody></table></div>`;
+  } else h += `<div class="card"><p class="sub" style="margin:0">Upload ${who ? esc(who) + "'s" : "your"} savings and checking statements to see what was kept as cash.</p></div>`;
+
+  h += secClose;
+  // Investments
+  h += secOpen("investments", "Investments", iv.end_value != null ? `${money(iv.end_value)} value` : "") + `
+    <div class="kpis" style="margin-top:0">
+      <div class="kpi"><div class="l">Invested this month</div><div class="v">${money(iv.contributions)}</div></div>
+      <div class="kpi"><div class="l">% of money in invested</div><div class="v">${pct(iv.pct_of_income)}</div></div>
+      <div class="kpi"><div class="l">Return this month (ROI)</div><div class="v">${iv.roi_pct != null ? (iv.roi_pct > 0 ? "+" : "") + iv.roi_pct.toFixed(2) + "%" : "—"}</div><div class="s">market change, excluding your deposits</div></div>
+    </div>`;
+  if (iv.accounts.length) {
+    h += `<div class="card tbl" style="margin-top:12px"><table><thead><tr><th>Account</th><th class="n">Start value</th><th class="n">Added</th><th class="n">Market change</th><th class="n">End value</th><th class="n">ROI</th></tr></thead><tbody>
+      ${iv.accounts.map(a => `<tr><td>${esc(a.name)}</td><td class="n">${money(a.start_value)}</td><td class="n">${money(a.contributions)}</td><td class="n">${a.market_change != null ? (a.market_change >= 0 ? "+" : "") + money(a.market_change) : "—"}</td><td class="n">${money(a.end_value)}</td><td class="n">${a.roi_pct != null ? a.roi_pct.toFixed(2) + "%" : "—"}</td></tr>`).join("")}
+    </tbody></table></div>`;
+  } else h += `<div class="card" style="margin-top:12px"><p class="sub" style="margin:0">Upload ${who ? esc(who) + "'s" : "your"} investment / 401(k) statements to see value and return.</p></div>`;
+
+  h += secClose;
+  const notes = [];
+  if (r.unreadable && r.unreadable.length) notes.push(`Couldn't read: ${r.unreadable.map(esc).join(", ")}.`);
+  if (r.spillover && r.spillover.length) notes.push(`Some transactions in these statements belong to ${r.spillover.map(monthName).join(", ")} and are counted there.`);
+  if (notes.length) h += `<p class="muted-note">${notes.join(" ")}</p>`;
+  $("#rep").innerHTML = h;
+
+  document.querySelectorAll("#rep .ask button").forEach(b => b.onclick = async () => {
+    await api("/api/owner", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({type: b.dataset.type, key: b.dataset.key, owner: b.dataset.owner})});
+    renderReport(month, view);
+  });
+  document.querySelectorAll("#rep details.sec").forEach(d => d.addEventListener("toggle", () => {
+    try { localStorage.setItem("ft.sec." + d.dataset.sec, d.open ? "1" : "0"); } catch (e) {}
+  }));
+  document.querySelectorAll("#rep .item > .row").forEach(btn => btn.onclick = () => {
+    const item = btn.parentElement;
+    item.classList.toggle("open");
+    btn.setAttribute("aria-expanded", item.classList.contains("open"));
+  });
+}
+const USE_NOTES = {
+  saved: "Growth of savings (HYSA) balances",
+  invested: "Transfers to investment accounts + 401(k) contributions",
+  member_out: "Household money moved to an account that isn't uploaded yet",
+  checking_cards: "Change in checking after card bills are settled. Negative = drew from checking",
+};
+function askHtml(items, members) {
+  if (!items || !items.length) return "";
+  return `<div class="ask"><b>Quick question${items.length > 1 ? "s" : ""}</b> (asked once, remembered for future months)
+    ${items.map(q => `<div class="q"><span>${esc(q.text)}</span>${[...members, ...(q.type === "account" ? [{id: "joint", name: "Joint"}] : [])].map(m =>
+      `<button data-type="${q.type}" data-key="${esc(q.key)}" data-owner="${m.id}">${esc(m.name)}</button>`).join("")}</div>`).join("")}</div>`;
+}
+// Breakdown sections: collapsed by default; whichever you open stays open next time.
+function secIsOpen(key) { try { return localStorage.getItem("ft.sec." + key) === "1"; } catch (e) { return false; } }
+function secOpen(key, title, total) {
+  return `<details class="sec" data-sec="${key}" ${secIsOpen(key) ? "open" : ""}><summary><span class="sec-title">${esc(title)}</span>${total ? `<span class="num">${total}</span>` : ""}</summary><div class="sec-body">`;
+}
+const secClose = `</div></details>`;
+function personFlowHtml(f, sp, who) {
+  return `<div class="kpis">
+    <div class="kpi tint c-in"><div class="l">Money in</div><div class="v">${money(f.money_in)}</div></div>
+    <div class="kpi tint c-spent"><div class="l">Spent (own cards & accounts)</div><div class="v">${money(f.spent)}</div></div>
+    <div class="kpi tint c-liquid"><div class="l">Liquid savings</div><div class="v">${signed(f.liquid)}</div><div class="s">savings ${signed(f.saved)}${f.checking ? ` · checking ${signed(f.checking)}` : ""}</div></div>
+    <div class="kpi tint c-invested"><div class="l">Invested</div><div class="v">${money(f.invested)}</div></div>
+    <div class="kpi tint c-rate"><div class="l">Savings rate</div><div class="v">${pct(f.savings_rate)}</div><div class="s">(liquid savings + invested) ÷ money in</div></div>
+  </div>`;
+}
+const BRANCH_NOTES = {
+  liquid: "Cash you kept: savings growth + change in checking. Negative = drew down cash.",
+  invested: "Money moved into investment accounts, plus 401(k).",
+  cards: "Card bills paid this month minus new card charges. You pay in full, so this is just timing: positive = last month's bill was bigger.",
+};
+const signed = v => `${v < 0 ? "−" : v > 0 ? "+" : ""}${money(Math.abs(v))}`;
+function flowHtml(f, sp) {
+  const off = Math.abs(f.unexplained) >= 5;
+  return `<div class="kpis">
+    <div class="kpi tint c-in"><div class="l">Money in</div><div class="v">${money(f.money_in)}</div></div>
+    <div class="kpi tint c-spent"><div class="l">Spent</div><div class="v">${money(f.spent)}</div><div class="s">${pct(sp.pct_of_income)} of money in</div></div>
+    <div class="kpi tint c-rate"><div class="l">Savings rate</div><div class="v">${pct(f.savings_rate)}</div><div class="s">left over ÷ money in</div></div>
+  </div>
+  <div class="tree">
+    <div class="kpi root tint c-left"><div class="l">Left over</div><div class="v">${money(f.left_over)}</div><div class="s">money in − spent</div></div>
+    <div class="stem"></div>
+    <div class="branches">${f.uses.map(u => `<div class="branch tint c-${u.key}"><div class="l">${esc(u.label)}</div>
+      <div class="v ${u.amount < 0 ? "neg" : ""}">${signed(u.amount)}</div>
+      ${(u.parts || []).map(p => `<div class="part"><span>${esc(p.label)}</span><span>${signed(p.amount)}</span></div>`).join("")}
+      <div class="why">${esc(BRANCH_NOTES[u.key] || "")}</div></div>`).join("")}</div>
+    <div class="check">${off ? `${money(Math.abs(f.unexplained))} isn't accounted for. A statement may be missing.` : `${f.uses.map(u => esc(u.label)).join(" + ")} = Left over ✓`}</div>
+  </div>
+  `;
+}
+function row(name, subtext, amount, pctVal, txs, max, spend) {
+  const w = max ? Math.max(0, amount) / max * 100 : 0;
+  const has = txs && txs.length;
+  const details = has ? `<div class="details"><table>${txs.map(t => `<tr><td class="d">${fmtDate(t.date)}</td><td>${esc(t.description)}<div class="acct">${esc(t.account)}</div></td><td class="n">${spend ? (t.amount > 0 ? `${money(t.amount, true)} refund` : money(-t.amount, true)) : money(t.amount, true)}</td></tr>`).join("")}</table></div>` : "";
+  return `<div class="item"><button class="row ${amount ? "" : "zero"}" ${has ? 'aria-expanded="false"' : "disabled"}><div class="name">${esc(name)}<small>${esc(subtext)}</small></div>
+    <div class="track"><div class="fill" style="width:${w}%"></div></div><div class="amt">${money(amount, true)}</div><div class="pct">${pct(pctVal)}</div></button>${details}</div>`;
+}
+function leftoverNote(r, month) {
+  const from = r.leftover_from || [];
+  if (!from.length) return "";
+  const list = from.map(x => `${monthName(x.month)}'s statements (${x.count} transaction${x.count === 1 ? "" : "s"})`).join(" and ");
+  if (!r.uploaded) return `<div class="note" style="margin-top:0"><b>Leftovers only.</b> These are transactions dated ${monthName(month)} from ${list}.
+    Upload ${monthName(month)}'s statements and this report will update to the full month. <a href="#home/${month}">Upload now</a></div>`;
+  return `<p class="sub" style="margin:-4px 0 12px">Includes leftover transactions from ${list}.</p>`;
+}
+function completeness(r, month) {
+  const [y, m] = month.split("-").map(Number);
+  const prev = monthName(`${m === 1 ? y - 1 : y}-${String((m + 10) % 12 + 1).padStart(2, "0")}`);
+  const next = monthName(`${m === 12 ? y + 1 : y}-${String(m % 12 + 1).padStart(2, "0")}`);
+  if (r.complete) return `<div class="note good" style="margin-top:0"><b>✓ Complete.</b> ${prev}, ${monthName(month)} and ${next} statements are all in, so every day of ${monthName(month)} is covered.</div>`;
+  const need = (r.months_needed || []).map(monthName);
+  const items = (r.gaps || []).flatMap(g => g.missing.map(x =>
+    `<li><b>${esc(g.account)}</b>: ${fmtDate(x.from)}${x.from === x.to ? "" : `–${fmtDate(x.to)}`} not included yet (on the ${x.need === "next" ? next : prev} statement)</li>`));
+  const head = need.length ? `Upload ${need.join(" and ")} statements to complete it.` : `Some days are still missing: check that every account's statement was uploaded.`;
+  return `<div class="note" style="margin-top:0"><b>This month isn't complete yet.</b> ${head}${items.length ? `<ul style="margin:6px 0 0;padding-left:20px">${items.join("")}</ul>` : ""}</div>`;
+}
+const KINDS = {cut: "✂ Cut back", watch: "👀 Watch", good: "✓ Doing well", action: "→ To do"};
+function suggestions(s) {
+  if (!s) return `<div class="card"><p class="sub" style="margin:0">No suggestions yet.</p></div>`;
+  // Older months saved plain text: show each line as a card.
+  const items = s.items || (s.text || "").split("\n").map(l => l.trim()).filter(l => l.startsWith("- ")).map(l => ({title: "", detail: l.slice(2), type: "watch"}));
+  if (!items.length) return `<div class="card"><p class="sub" style="margin:0">No suggestions yet.</p></div>`;
+  return `<div class="notes">${items.slice(0, 6).map((it, i) => `<div class="note-card" style="--bg:var(--n${i + 1});--a:var(--n${i + 1}a)">
+    <div class="kind">${KINDS[it.type] || KINDS.watch}</div>
+    ${it.title ? `<div class="t">${esc(it.title)}</div>` : ""}
+    <div class="d">${esc(it.detail)}</div>
+    ${it.impact ? `<div class="imp">${esc(it.impact)}</div>` : ""}</div>`).join("")}</div>`;
+}
+
+// ---------- light / dark ----------
+function currentTheme() {
+  return document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+}
+function paintThemeButton() {
+  const dark = currentTheme() === "dark";
+  const b = $("#theme-btn");
+  b.innerHTML = dark ? "☀️ <span>Light mode</span>" : "🌙 <span>Dark mode</span>";
+  b.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+}
+$("#theme-btn").onclick = () => {
+  const next = currentTheme() === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem("ft.theme", next); } catch (e) {}
+  paintThemeButton();
+};
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", paintThemeButton);
+paintThemeButton();
+
+// ---------- start ----------
+window.addEventListener("hashchange", route);
+api("/api/months").then(i => {
+  INFO = i;
+  if (i.title) { $("#app-title").textContent = i.title; document.title = i.title; }
+}).catch(() => {}).finally(route);
+</script>
+</body>
+</html>

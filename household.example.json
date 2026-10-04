@@ -1,0 +1,9 @@
+{
+  "_doc": "Copy to data/household.json and edit. 'title' is shown in the app header. 'context' briefly describes your setup for the suggestions. 'aliases' are names as they appear on statements (account holder, Zelle). Used to tell whose account/income is whose and to recognize money moving between household members.",
+  "title": "Our Financial Tracker",
+  "context": "a household of two; numbers are for everyone combined",
+  "members": [
+    {"id": "alex", "name": "Alex", "aliases": ["Alexandra Smith", "Alexandra"]},
+    {"id": "sam", "name": "Sam", "aliases": ["Samuel Jones", "Samuel"]}
+  ]
+}
